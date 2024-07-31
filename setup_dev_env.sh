@@ -120,6 +120,14 @@ EOF
     "vim-commentary" "Easier commenting" OFF \
     "indent-blankline" "Show indentation guides" OFF \
     "startify" "Start screen for Vim" OFF \
+    "vim-go" "Go development plugin" OFF \
+    "deoplete" "Asynchronous completion framework" OFF \
+    "vim-markdown" "Markdown support" OFF \
+    "vim-sneak" "Jump to any location specified by two characters" OFF \
+    "youcompleteme" "Code completion engine" OFF \
+    "vim-tmux-navigator" "Seamless navigation between tmux panes and vim splits" OFF \
+    "vim-javascript" "JavaScript syntax highlighting" OFF \
+    "onedark.vim" "Atom's iconic One Dark theme" OFF \
     3>&1 1>&2 2>&3)
 
     for plugin in $plugins; do
@@ -196,6 +204,31 @@ EOF
             "\"startify\"")
                 echo "Plug 'mhinz/vim-startify'" >> ~/.config/nvim/init.vim
                 ;;
+            "\"vim-go\"")
+                echo "Plug 'fatih/vim-go'" >> ~/.config/nvim/init.vim
+                ;;
+            "\"deoplete\"")
+                echo "Plug 'Shougo/deoplete.nvim', {'do': ':UpdateRemotePlugins'}" >> ~/.config/nvim/init.vim
+                ;;
+            "\"vim-markdown\"")
+                echo "Plug 'godlygeek/tabular'"
+                echo "Plug 'plasticboy/vim-markdown'" >> ~/.config/nvim/init.vim
+                ;;
+            "\"vim-sneak\"")
+                echo "Plug 'justinmk/vim-sneak'" >> ~/.config/nvim/init.vim
+                ;;
+            "\"youcompleteme\"")
+                echo "Plug 'ycm-core/YouCompleteMe'" >> ~/.config/nvim/init.vim
+                ;;
+            "\"vim-tmux-navigator\"")
+                echo "Plug 'christoomey/vim-tmux-navigator'" >> ~/.config/nvim/init.vim
+                ;;
+            "\"vim-javascript\"")
+                echo "Plug 'pangloss/vim-javascript'" >> ~/.config/nvim/init.vim
+                ;;
+            "\"onedark.vim\"")
+                echo "Plug 'joshdick/onedark.vim'" >> ~/.config/nvim/init.vim
+                ;;
         esac
     done
 
@@ -233,6 +266,21 @@ install_additional_tools() {
     echo "7. git - Version control"
     echo "8. tree - Directory listing"
     echo "9. jq - JSON processing"
+    echo "10. docker - Containerization platform"
+    echo "11. aws-cli - AWS command line interface"
+    echo "12. kubectl - Kubernetes command line tool"
+    echo "13. helm - Kubernetes package manager"
+    echo "14. terraform - Infrastructure as code"
+    echo "15. ansible - IT automation tool"
+    echo "16. vim - Text editor"
+    echo "17. wget - Network downloader"
+    echo "18. curl - Data transfer tool"
+    echo "19. httpie - User-friendly HTTP client"
+    echo "20. tmux - Terminal multiplexer"
+    echo "21. zsh - Shell"
+    echo "22. oh-my-zsh - Zsh configuration framework"
+    echo "23. node - JavaScript runtime"
+    echo "24. yarn - JavaScript package manager"
     
     additional_tools=$(whiptail --title "Additional Tools" --checklist \
     "Select additional tools to install:" 20 78 15 \
@@ -245,6 +293,21 @@ install_additional_tools() {
     "git" "Version control" OFF \
     "tree" "Directory listing" OFF \
     "jq" "JSON processing" OFF \
+    "docker" "Containerization platform" OFF \
+    "aws-cli" "AWS command line interface" OFF \
+    "kubectl" "Kubernetes command line tool" OFF \
+    "helm" "Kubernetes package manager" OFF \
+    "terraform" "Infrastructure as code" OFF \
+    "ansible" "IT automation tool" OFF \
+    "vim" "Text editor" OFF \
+    "wget" "Network downloader" OFF \
+    "curl" "Data transfer tool" OFF \
+    "httpie" "User-friendly HTTP client" OFF \
+    "tmux" "Terminal multiplexer" OFF \
+    "zsh" "Shell" OFF \
+    "oh-my-zsh" "Zsh configuration framework" OFF \
+    "node" "JavaScript runtime" OFF \
+    "yarn" "JavaScript package manager" OFF \
     3>&1 1>&2 2>&3)
 
     for tool in $additional_tools; do
@@ -275,6 +338,51 @@ install_additional_tools() {
                 ;;
             "\"jq\"")
                 brew install jq
+                ;;
+            "\"docker\"")
+                brew install --cask docker
+                ;;
+            "\"aws-cli\"")
+                brew install awscli
+                ;;
+            "\"kubectl\"")
+                brew install kubectl
+                ;;
+            "\"helm\"")
+                brew install helm
+                ;;
+            "\"terraform\"")
+                brew install terraform
+                ;;
+            "\"ansible\"")
+                brew install ansible
+                ;;
+            "\"vim\"")
+                brew install vim
+                ;;
+            "\"wget\"")
+                brew install wget
+                ;;
+            "\"curl\"")
+                brew install curl
+                ;;
+            "\"httpie\"")
+                brew install httpie
+                ;;
+            "\"tmux\"")
+                brew install tmux
+                ;;
+            "\"zsh\"")
+                brew install zsh
+                ;;
+            "\"oh-my-zsh\"")
+                sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+                ;;
+            "\"node\"")
+                brew install node
+                ;;
+            "\"yarn\"")
+                brew install yarn
                 ;;
         esac
     done
