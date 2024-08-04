@@ -258,13 +258,38 @@ install_vscode() {
 
 # Function to install VSCode extensions
 install_vscode_extensions() {
-    echo "Installing VSCode extensions..."
-    code --install-extension ms-python.python
-    code --install-extension dbaeumer.vscode-eslint
-    code --install-extension esbenp.prettier-vscode
-    code --install-extension ms-vscode.cpptools
-    code --install-extension editorconfig.editorconfig
-    code --install-extension gitlab.gitlab-workflow
+    echo "Would you like to install recommended Visual Studio Code extensions?"
+    if whiptail --title "Install VSCode Extensions" --yesno "Install a set of popular VSCode extensions?" 10 60; then
+        echo "Installing recommended VSCode extensions..."
+        extensions=(
+            "ms-python.python" "Python"
+            "dbaeumer.vscode-eslint" "ESLint"
+            "esbenp.prettier-vscode" "Prettier - Code formatter"
+            "ms-vscode.cpptools" "C++"
+            "editorconfig.editorconfig" "EditorConfig"
+            "gitlab.gitlab-workflow" "GitLab Workflow"
+            "redhat.vscode-yaml" "YAML"
+            "eg2.vscode-npm-script" "NPM Scripts"
+            "eamodio.gitlens" "GitLens"
+            "ms-azuretools.vscode-docker" "Docker"
+            "donjayamanne.githistory" "Git History"
+            "humao.rest-client" "REST Client"
+            "ms-vscode.vscode-typescript-tslint-plugin" "TSLint"
+            "bradlc.vscode-tailwindcss" "Tailwind CSS IntelliSense"
+            "msjsdiag.debugger-for-chrome" "Debugger for Chrome"
+            "vscode-icons-team.vscode-icons" "VSCode Icons"
+            "esbenp.prettier-vscode" "Prettier"
+            "natecavanaugh.vscode-git-graph" "Git Graph"
+            "wix.vscode-import-cost" "Import Cost"
+            "yzhang.markdown-all-in-one" "Markdown All in One"
+        )
+
+        for ext in "${extensions[@]}"; do
+            code --install-extension "${ext}"
+        done
+    else
+        echo "Skipping VSCode extensions installation."
+    fi
 }
 
 # Function to install additional tools
