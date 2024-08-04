@@ -3,6 +3,17 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
+# Define log file and config file
+LOG_FILE="setup_script.log"
+CONFIG_FILE="setup_config.json"
+
+# Function to log messages to the log file
+log_message() {
+    local message="$1"
+    local type="$2"
+    echo "$(date +'%Y-%m-%d %H:%M:%S') [$type] $message" >> "$LOG_FILE"
+}
+
 # Function to display a banner
 display_banner() {
     clear
@@ -49,6 +60,7 @@ install_homebrew() {
         echo "Homebrew not found. Installing Homebrew..."
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
         add_brew_to_path
+        log_message "Installed Homebrew" "INFO"
     else
         echo "Homebrew is already installed."
     fi
@@ -60,6 +72,7 @@ install_whiptail() {
     if ! command -v whiptail &> /dev/null; then
         echo "whiptail not found. Installing whiptail..."
         brew install newt
+        log_message "Installed whiptail" "INFO"
     else
         echo "whiptail is already installed."
     fi
@@ -73,11 +86,13 @@ check_install() {
     if command -v $tool &> /dev/null; then
         if whiptail --title "Reinstall $tool" --yesno "$tool is already installed. Do you want to reinstall it?" 10 60; then
             eval $install_command
+            log_message "Reinstalled $tool" "INFO"
         else
             echo "Keeping the current version of $tool."
         fi
     else
         eval $install_command
+        log_message "Installed $tool" "INFO"
     fi
 }
 
@@ -85,6 +100,7 @@ check_install() {
 install_nvim() {
     echo "Installing Neovim..."
     brew install neovim
+    log_message "Installed Neovim" "INFO"
 }
 
 # Function to install Neovim plugins
@@ -187,7 +203,7 @@ EOF
                 echo "Plug 'mhinz/vim-startify'" >> ~/.config/nvim/init.vim
                 ;;
             "\"telescope.nvim\"")
-                echo "Plug 'nvim-telescope/telescope.nvim', { 'do': ':UpdateRemotePlugins' }" >> ~/.config/nvim/init.vim
+                echo "Plug 'nvim-telescope/telescope.nvim'" >> ~/.config/nvim/init.vim
                 ;;
             "\"coc-python\"")
                 echo "Plug 'neoclide/coc-python', {'branch': 'release'}" >> ~/.config/nvim/init.vim
@@ -245,6 +261,7 @@ EOF
 
     echo "call plug#end()" >> ~/.config/nvim/init.vim
     echo "Neovim configuration complete."
+    log_message "Configured Neovim plugins" "INFO"
 
     echo "Installing Neovim plugins..."
     nvim +PlugInstall +qall
@@ -254,39 +271,15 @@ EOF
 install_vscode() {
     echo "Installing Visual Studio Code..."
     brew install --cask visual-studio-code
+    log_message "Installed Visual Studio Code" "INFO"
 }
 
 # Function to install VSCode extensions
 install_vscode_extensions() {
-    echo "Would you like to install recommended Visual Studio Code extensions?"
-    if whiptail --title "Install VSCode Extensions" --yesno "Install a set of popular VSCode extensions?" 10 60; then
-        echo "Installing recommended VSCode extensions..."
-        extensions=(
-            "ms-python.python" "Python"
-            "dbaeumer.vscode-eslint" "ESLint"
-            "esbenp.prettier-vscode" "Prettier - Code formatter"
-            "ms-vscode.cpptools" "C++"
-            "editorconfig.editorconfig" "EditorConfig"
-            "gitlab.gitlab-workflow" "GitLab Workflow"
-            "redhat.vscode-yaml" "YAML"
-            "eg2.vscode-npm-script" "NPM Scripts"
-            "eamodio.gitlens" "GitLens"
-            "ms-azuretools.vscode-docker" "Docker"
-            "donjayamanne.githistory" "Git History"
-            "humao.rest-client" "REST Client"
-            "ms-vscode.vscode-typescript-tslint-plugin" "TSLint"
-            "bradlc.vscode-tailwindcss" "Tailwind CSS IntelliSense"
-            "msjsdiag.debugger-for-chrome" "Debugger for Chrome"
-            "vscode-icons-team.vscode-icons" "VSCode Icons"
-            "esbenp.prettier-vscode" "Prettier"
-            "natecavanaugh.vscode-git-graph" "Git Graph"
-            "wix.vscode-import-cost" "Import Cost"
-            "yzhang.markdown-all-in-one" "Markdown All in One"
-        )
-
-        for ext in "${extensions[@]}"; do
-            code --install-extension "${ext}"
-        done
+    echo "Would you like to install VSCode extensions?"
+    if whiptail --title "Install VSCode Extensions" --yesno "Run the extension selection script to choose and install extensions?" 10 60; then
+        ./select_vscode_extensions.py
+        log_message "Installed VSCode extensions" "INFO"
     else
         echo "Skipping VSCode extensions installation."
     fi
@@ -389,12 +382,41 @@ install_additional_tools() {
 run_homebrew_cleanup() {
     echo "Running Homebrew cleanup..."
     brew cleanup
+    log_message "Homebrew cleanup completed" "INFO"
+}
+
+# Function to handle configuration management
+manage_configuration() {
+    if [ -f "$CONFIG_FILE" ]; then
+        echo "Configuration file found."
+        if whiptail --title "Configuration Management" --yesno "Do you want to use the existing configuration?" 10 60; then
+            echo "Using existing configuration..."
+            # Load existing configuration
+            CONFIG=$(cat $CONFIG_FILE)
+            echo "Configuration loaded."
+        else
+            echo "Starting clean setup..."
+            rm -f "$CONFIG_FILE"
+            CONFIG="{}"
+        fi
+    else
+        echo "No configuration file found. Starting fresh..."
+        CONFIG="{}"
+    fi
+}
+
+# Function to save configuration
+save_configuration() {
+    echo "Saving configuration..."
+    echo "$CONFIG" > "$CONFIG_FILE"
+    log_message "Configuration saved to $CONFIG_FILE" "INFO"
 }
 
 # Main script execution
 display_banner
 install_homebrew
 install_whiptail
+manage_configuration
 
 # Prompt user to choose editors
 editors=$(whiptail --title "Choose Editors" --checklist \
@@ -415,5 +437,6 @@ fi
 
 install_additional_tools
 run_homebrew_cleanup
+save_configuration
 
 echo "Setup completed successfully!"
