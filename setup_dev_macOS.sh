@@ -31,12 +31,24 @@ display_progress() {
     echo ""
 }
 
+# Function to add Homebrew to PATH
+add_brew_to_path() {
+    echo "Adding Homebrew to PATH..."
+    if ! grep -q 'brew' ~/.zshrc && ! grep -q 'brew' ~/.bash_profile; then
+        echo 'export PATH="/opt/homebrew/bin:$PATH"' >> ~/.zshrc
+        echo 'export PATH="/opt/homebrew/bin:$PATH"' >> ~/.bash_profile
+        source ~/.zshrc
+        source ~/.bash_profile
+    fi
+}
+
 # Function to install Homebrew
 install_homebrew() {
     echo "Checking for Homebrew..."
     if ! command -v brew &> /dev/null; then
         echo "Homebrew not found. Installing Homebrew..."
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        add_brew_to_path
     else
         echo "Homebrew is already installed."
     fi
@@ -208,10 +220,9 @@ EOF
                 echo "Plug 'fatih/vim-go'" >> ~/.config/nvim/init.vim
                 ;;
             "\"deoplete\"")
-                echo "Plug 'Shougo/deoplete.nvim', {'do': ':UpdateRemotePlugins'}" >> ~/.config/nvim/init.vim
+                echo "Plug 'Shougo/deoplete.nvim'" >> ~/.config/nvim/init.vim
                 ;;
             "\"vim-markdown\"")
-                echo "Plug 'godlygeek/tabular'"
                 echo "Plug 'plasticboy/vim-markdown'" >> ~/.config/nvim/init.vim
                 ;;
             "\"vim-sneak\"")
@@ -233,6 +244,7 @@ EOF
     done
 
     echo "call plug#end()" >> ~/.config/nvim/init.vim
+    echo "Neovim configuration complete."
 
     echo "Installing Neovim plugins..."
     nvim +PlugInstall +qall
@@ -242,189 +254,141 @@ EOF
 install_vscode() {
     echo "Installing Visual Studio Code..."
     brew install --cask visual-studio-code
-
-    echo "Installing useful VSCode extensions..."
-    code --install-extension ms-python.python
-    code --install-extension rust-lang.rust
-    code --install-extension ms-vscode.cpptools
-    code --install-extension esbenp.prettier-vscode
-    code --install-extension dbaeumer.vscode-eslint
-    code --install-extension ritwickdey.liveserver
-    code --install-extension eamodio.gitlens
 }
 
-# Function to install additional nice-to-have tools
+# Function to install VSCode extensions
+install_vscode_extensions() {
+    echo "Installing VSCode extensions..."
+    code --install-extension ms-python.python
+    code --install-extension dbaeumer.vscode-eslint
+    code --install-extension esbenp.prettier-vscode
+    code --install-extension ms-vscode.cpptools
+    code --install-extension editorconfig.editorconfig
+    code --install-extension gitlab.gitlab-workflow
+}
+
+# Function to install additional tools
 install_additional_tools() {
-    echo "Installing additional nice-to-have tools..."
-    echo "Additional tools available:"
-    echo "1. iterm2 - Terminal replacement"
-    echo "2. postman - API development"
-    echo "3. slack - Team communication"
-    echo "4. zoom - Video conferencing"
-    echo "5. google-chrome - Web browser"
-    echo "6. htop - System monitoring"
-    echo "7. git - Version control"
-    echo "8. tree - Directory listing"
-    echo "9. jq - JSON processing"
-    echo "10. docker - Containerization platform"
-    echo "11. aws-cli - AWS command line interface"
-    echo "12. kubectl - Kubernetes command line tool"
-    echo "13. helm - Kubernetes package manager"
-    echo "14. terraform - Infrastructure as code"
-    echo "15. ansible - IT automation tool"
-    echo "16. vim - Text editor"
-    echo "17. wget - Network downloader"
-    echo "18. curl - Data transfer tool"
-    echo "19. httpie - User-friendly HTTP client"
-    echo "20. tmux - Terminal multiplexer"
-    echo "21. zsh - Shell"
-    echo "22. oh-my-zsh - Zsh configuration framework"
-    echo "23. node - JavaScript runtime"
-    echo "24. yarn - JavaScript package manager"
-    
-    additional_tools=$(whiptail --title "Additional Tools" --checklist \
+    echo "Installing additional tools..."
+    tools=$(whiptail --title "Additional Tools" --checklist \
     "Select additional tools to install:" 20 78 15 \
-    "iterm2" "Terminal replacement" OFF \
-    "postman" "API development" OFF \
-    "slack" "Team communication" OFF \
-    "zoom" "Video conferencing" OFF \
-    "google-chrome" "Web browser" OFF \
-    "htop" "System monitoring" OFF \
-    "git" "Version control" OFF \
-    "tree" "Directory listing" OFF \
-    "jq" "JSON processing" OFF \
-    "docker" "Containerization platform" OFF \
-    "aws-cli" "AWS command line interface" OFF \
-    "kubectl" "Kubernetes command line tool" OFF \
-    "helm" "Kubernetes package manager" OFF \
-    "terraform" "Infrastructure as code" OFF \
-    "ansible" "IT automation tool" OFF \
-    "vim" "Text editor" OFF \
+    "docker" "Container platform" OFF \
+    "kubernetes-cli" "Kubernetes command-line tool" OFF \
+    "awscli" "AWS command-line interface" OFF \
+    "terraform" "Infrastructure as code tool" OFF \
+    "jq" "Command-line JSON processor" OFF \
+    "git" "Version control system" ON \
+    "curl" "Command-line tool for transferring data" ON \
     "wget" "Network downloader" OFF \
-    "curl" "Data transfer tool" OFF \
-    "httpie" "User-friendly HTTP client" OFF \
-    "tmux" "Terminal multiplexer" OFF \
-    "zsh" "Shell" OFF \
-    "oh-my-zsh" "Zsh configuration framework" OFF \
     "node" "JavaScript runtime" OFF \
-    "yarn" "JavaScript package manager" OFF \
+    "python" "Python interpreter" OFF \
+    "golang" "Go programming language" OFF \
+    "ruby" "Ruby programming language" OFF \
+    "vim" "Vi IMproved" OFF \
+    "tmux" "Terminal multiplexer" OFF \
+    "htop" "Interactive process viewer" OFF \
+    "nmap" "Network exploration tool" OFF \
+    "httpie" "Command-line HTTP client" OFF \
+    "postman" "API client" OFF \
+    "diff-so-fancy" "Better diffs" OFF \
+    "warp" "Modern terminal" OFF \
     3>&1 1>&2 2>&3)
 
-    for tool in $additional_tools; do
+    for tool in $tools; do
         case $tool in
-            "\"iterm2\"")
-                brew install --cask iterm2
-                ;;
-            "\"postman\"")
-                brew install --cask postman
-                ;;
-            "\"slack\"")
-                brew install --cask slack
-                ;;
-            "\"zoom\"")
-                brew install --cask zoom
-                ;;
-            "\"google-chrome\"")
-                brew install --cask google-chrome
-                ;;
-            "\"htop\"")
-                brew install htop
-                ;;
-            "\"git\"")
-                brew install git
-                ;;
-            "\"tree\"")
-                brew install tree
-                ;;
-            "\"jq\"")
-                brew install jq
-                ;;
             "\"docker\"")
-                brew install --cask docker
+                check_install docker "brew install docker"
                 ;;
-            "\"aws-cli\"")
-                brew install awscli
+            "\"kubernetes-cli\"")
+                check_install kubectl "brew install kubernetes-cli"
                 ;;
-            "\"kubectl\"")
-                brew install kubectl
-                ;;
-            "\"helm\"")
-                brew install helm
+            "\"awscli\"")
+                check_install aws "brew install awscli"
                 ;;
             "\"terraform\"")
-                brew install terraform
+                check_install terraform "brew install terraform"
                 ;;
-            "\"ansible\"")
-                brew install ansible
+            "\"jq\"")
+                check_install jq "brew install jq"
                 ;;
-            "\"vim\"")
-                brew install vim
-                ;;
-            "\"wget\"")
-                brew install wget
+            "\"git\"")
+                check_install git "brew install git"
                 ;;
             "\"curl\"")
-                brew install curl
+                check_install curl "brew install curl"
                 ;;
-            "\"httpie\"")
-                brew install httpie
-                ;;
-            "\"tmux\"")
-                brew install tmux
-                ;;
-            "\"zsh\"")
-                brew install zsh
-                ;;
-            "\"oh-my-zsh\"")
-                sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+            "\"wget\"")
+                check_install wget "brew install wget"
                 ;;
             "\"node\"")
-                brew install node
+                check_install node "brew install node"
                 ;;
-            "\"yarn\"")
-                brew install yarn
+            "\"python\"")
+                check_install python "brew install python"
+                ;;
+            "\"golang\"")
+                check_install go "brew install golang"
+                ;;
+            "\"ruby\"")
+                check_install ruby "brew install ruby"
+                ;;
+            "\"vim\"")
+                check_install vim "brew install vim"
+                ;;
+            "\"tmux\"")
+                check_install tmux "brew install tmux"
+                ;;
+            "\"htop\"")
+                check_install htop "brew install htop"
+                ;;
+            "\"nmap\"")
+                check_install nmap "brew install nmap"
+                ;;
+            "\"httpie\"")
+                check_install http "brew install httpie"
+                ;;
+            "\"postman\"")
+                check_install postman "brew install --cask postman"
+                ;;
+            "\"diff-so-fancy\"")
+                check_install diff-so-fancy "brew install diff-so-fancy"
+                ;;
+            "\"warp\"")
+                check_install warp "brew install --cask warp"
                 ;;
         esac
     done
 }
 
-# Display the banner and animation
-display_banner
-display_progress
+# Function to run Homebrew cleanup
+run_homebrew_cleanup() {
+    echo "Running Homebrew cleanup..."
+    brew cleanup
+}
 
-# Install Homebrew and whiptail first
+# Main script execution
+display_banner
 install_homebrew
 install_whiptail
 
-# Display progress animation
-display_progress
-
-# Ask user to choose between Visual Studio Code or Neovim
-editor_choice=$(whiptail --title "Code Editor" --radiolist \
-"Select the code editor to install:" 20 78 15 \
-"Visual Studio Code" "The popular code editor" ON \
-"Neovim" "The modern Vim-based editor" OFF \
+# Prompt user to choose editors
+editors=$(whiptail --title "Choose Editors" --checklist \
+"Select editors to install:" 20 78 15 \
+"nvim" "Neovim" OFF \
+"vscode" "Visual Studio Code" OFF \
 3>&1 1>&2 2>&3)
 
-# Install the selected code editor and configure it
-case $editor_choice in
-    "Visual Studio Code")
-        install_vscode
-        ;;
-    "Neovim")
-        install_nvim
-        if whiptail --title "Neovim Plugins" --yesno "Do you want to install Neovim plugins?" 10 60; then
-            install_nvim_plugins
-        fi
-        ;;
-esac
+if echo "$editors" | grep -q '"nvim"'; then
+    install_nvim
+    install_nvim_plugins
+fi
 
-# Install additional nice-to-have tools
+if echo "$editors" | grep -q '"vscode"'; then
+    install_vscode
+    install_vscode_extensions
+fi
+
 install_additional_tools
+run_homebrew_cleanup
 
-# Clean up
-echo "Cleaning up..."
-brew cleanup
-
-echo "Development environment setup is complete!"
-echo "You may need to restart your terminal or source your profile for some changes to take effect."
+echo "Setup completed successfully!"
